@@ -67,11 +67,5 @@ jQuery(document).ready(function($) {
 
 		});
 	}
-	
-	
-	jQuery("#optionsframework .section-start_group > h4.heading").click(function(){
-		if(jQuery(this).parent().hasClass("group_close")){jQuery(this).parent().removeClass("group_close").addClass("group_open");}	else										 
-		if(jQuery(this).parent().hasClass("group_open")){jQuery(this).parent().removeClass("group_open").addClass("group_close");}															
-     });
 
 });

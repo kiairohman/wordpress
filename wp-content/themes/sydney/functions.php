@@ -299,6 +299,11 @@ require get_template_directory() . '/inc/styles.php';
 require get_template_directory() . '/inc/theme-info.php';
 
 /**
+ * Woocommerce basic integration
+ */
+require get_template_directory() . '/inc/woocommerce.php';
+
+/**
  *TGM Plugin activation.
  */
 require_once dirname( __FILE__ ) . '/plugins/class-tgm-plugin-activation.php';

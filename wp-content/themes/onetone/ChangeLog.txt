@@ -2,6 +2,15 @@
 
 == CHANGE LOG == 
 
+= Version 1.5.2 =
+* Added Bootstrap Framework
+* Retina Ready
+* bbPress Support
+* New Post/Page Layout
+* Added Sidebar Options
+* Added Header/Footer Options
+* Added Site Styling
+
 = Version 1.5.1 =
 * Improve performance
 

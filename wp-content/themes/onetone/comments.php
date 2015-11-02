@@ -1,10 +1,5 @@
 <?php
-/**
- * @package WordPress
- * @subpackage onetone
- */
 
-	
 	if ( post_password_required() ) { ?>
 		<p class="nocomments"><?php _e('This post is password protected. Enter the password to view comments.', 'onetone'); ?></p> 
 	<?php
@@ -12,12 +7,10 @@
 	}
 ?>
 
-<!-- You can start editing here. -->
-
 <?php if ( have_comments() ) : ?>
 	<h3 id="comments"><?php comments_number(__('No comment', 'onetone'), __('Has one comment', 'onetone'), __('% comments', 'onetone'));?> <?php printf(__('to &#8220;%s&#8221;', 'onetone'), the_title('', '', false)); ?></h3>
-<div class="upcomment"><?php _e('You can ','onetone'); ?><a id="leaverepond" href="#comments"><?php _e('leave a reply','onetone'); ?></a>  <?php _e(' or ','onetone'); ?> <a href="<?php trackback_url(true); ?>" rel="trackback"><?php _e('Trackback','onetone'); ?></a> <?php _e('this post.','onetone'); ?></div>
-	<ol id="thecomments" class="commentlist">
+<p class="upcomment"><?php _e('You can ','onetone'); ?><a id="leaverepond" href="#comments"><?php _e('leave a reply','onetone'); ?></a>  <?php _e(' or ','onetone'); ?> <a href="<?php trackback_url(true); ?>" rel="trackback"><?php _e('Trackback','onetone'); ?></a> <?php _e('this post.','onetone'); ?></p>
+	<ol id="thecomments" class="commentlist comments-list">
 	<?php wp_list_comments('type=comment&callback=onetone_comment');?>
 	</ol>
 
@@ -65,33 +58,32 @@ $commenter = wp_get_current_commenter();
 $req = get_option( 'require_name_email' );
 $aria_req = ( $req ? " aria-required='true'" : '' );
 global $required_text;
-$commenter['comment_author']        = ($commenter['comment_author'] == "")?"Name":$commenter['comment_author'];
-$commenter['comment_author_email']  = ($commenter['comment_author_email'] == "")?"Email":$commenter['comment_author_email'];
-$commenter['comment_author_url']    = ($commenter['comment_author_url'] == "")?"Website":$commenter['comment_author_url'];
+
 $comments_args = array(
+'class_submit' => 'submit',
          'comment_notes_before' => '<p class="comment-notes">' .
     __( 'Your email address will not be published.', 'onetone' ) . ( $req ? $required_text : '' ) .
     '</p>',
         // change the title of the reply section
-        'title_reply'=>__('Write a Reply or Comment', 'onetone'),
+        'title_reply'=>__('Leave a Reply', 'onetone'),
         // remove "Text or HTML to be displayed after the set of comment fields"
         'comment_notes_after' => '',
         // redefine your own textarea (the comment body)
-        'comment_field' => '<div class="clear"></div>
-<div id="comment-textarea"><textarea id="comment" name="comment" onFocus="if(this.value==\'Message\'){this.value=\'\'}" onBlur="if(this.value==\'\'){this.value=\'Message\'}" class="textarea-comment" aria-required="true">Message</textarea></div>',
+        'comment_field' => '<div class="clear"></div><p class="form-allowed-tags"></p>
+<section class="comment-form-comment form-group"><div id="comment-textarea"><textarea id="comment" name="comment" placeholder="'.__('Message', 'onetone').'"  cols="45" rows="8"  class="textarea-comment form-control" aria-required="true"></textarea></div></section>',
 		'fields' => apply_filters( 'comment_form_default_fields', array(
 
     'author' =>
-      '<p><input id="author" class="input-name" name="author" onFocus="if(this.value==\'Name\'){this.value=\'\'}" onBlur="if(this.value==\'\'){this.value=\'Name\'}" type="text" value="' . esc_attr( $commenter['comment_author'] ) .
-      '" size="22"' . $aria_req . ' /></p>',
+      '<div class="row"><section class="comment-form-author form-group col-md-4"><input id="author" class="input-name form-control" name="author" placeholder="'.__('Name', 'onetone').'"  type="text" value="' . esc_attr( $commenter['comment_author'] ) .
+      '" size="30"' . $aria_req . ' /></section>',
 
     'email' =>
-      '<p><input id="email" class="input-name" name="email" onFocus="if(this.value==\'Email\'){this.value=\'\'}" onBlur="if(this.value==\'\'){this.value=\'Email\'}" type="text" value="' . esc_attr(  $commenter['comment_author_email'] ) .
-      '" size="22"' . $aria_req . ' /></p>',
+      '<section class="comment-form-email form-group col-md-4"><input id="email" class="input-name form-control" name="email" placeholder="'.__('Email', 'onetone').'"  type="text" value="' . esc_attr(  $commenter['comment_author_email'] ) .
+      '" size="30"' . $aria_req . ' /></section>',
 
     'url' =>
-      '<p><input id="url" class="input-name" name="url" onFocus="if(this.value==\'Website\'){this.value=\'\'}" onBlur="if(this.value==\'\'){this.value=\'Website\'}" type="text" value="' . esc_attr( $commenter['comment_author_url'] ) .
-      '" size="22" /></p>'
+      '<section class="comment-form-url form-group col-md-4"><input id="url" class="input-name form-control" placeholder="'.__('Website', 'onetone').'" name="url"  type="text" value="' . esc_attr( $commenter['comment_author_url'] ) .
+      '" size="30" /></section></div>'
     ))
 );
 ?>
@@ -99,5 +91,4 @@ $comments_args = array(
 
 <?php endif; // If registration required and not logged in ?>
 </div>
-
-<?php endif; // if you delete this the sky will fall on your head ?>
+<?php endif;  ?>

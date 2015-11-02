@@ -16,29 +16,40 @@ class Options_Framework_Interface {
 		$counter = 0;
 		$options = & Options_Framework::_optionsframework_options();
 		$menu = '';
+		
+		
 
 		foreach ( $options as $value ) {
 			// Heading for Navigation
+			
+			$menu_icon = '';
+				if ( isset( $value['icon'] ) ) {
+					$menu_icon = '<i class="fa '.$value['icon'].'"></i> ';
+				}
+				
 			if ( $value['type'] == "heading" ) {
 				$counter++;
 				$class = '';
 				$class = ! empty( $value['id'] ) ? $value['id'] : $value['name'];
 				$class = preg_replace( '/[^a-zA-Z0-9._\-]/', '', strtolower($class) ) . '-tab';
-				$menu .= '<a id="options-group-'.  $counter . '-tab" class="nav-tab ' . $class .'" title="' . esc_attr( $value['name'] ) . '" href="' . esc_attr( '#options-group-'.  $counter ) . '">' . esc_html( $value['name'] ) . '</a>';
+				$menu .= '<a id="options-group-'.  $counter . '-tab" class="nav-tab ' . $class .'" title="' . esc_attr( $value['name'] ) . '" href="' . esc_attr( '#options-group-'.  $counter ) . '">'.$menu_icon.esc_html( $value['name'] ) . '</a>';
 			}
 		}
 
 		return $menu;
 	}
+	  
+ 
 
 	/**
 	 * Generates the options fields that are used in the form.
 	 */
 	static function optionsframework_fields() {
 
-		global $allowedtags;
+		 global $allowedposttags, $allowedtags;
 
-		$option_name = Options_Framework::get_option_name();
+		$options_framework = new Options_Framework;
+		$option_name = $options_framework->get_option_name();
 		$settings = get_option( $option_name );
 		$options = & Options_Framework::_optionsframework_options();
 
@@ -69,7 +80,7 @@ class Options_Framework_Interface {
 
 				$output .= '<div id="' . esc_attr( $id ) .'" class="' . esc_attr( $class ) . '">'."\n";
 				if ( isset( $value['name'] ) ) {
-					$output .= '<h4 class="heading">' . esc_html( $value['name'] ) . '</h4>' . "\n";
+					$output .= '<h4 class="heading">' . wp_kses( $value['name'], $allowedposttags ) . '</h4>' . "\n";
 				}
 				if ( $value['type'] != 'editor' ) {
 					$output .= '<div class="option">' . "\n" . '<div class="controls">' . "\n";
@@ -136,12 +147,13 @@ class Options_Framework_Interface {
 				}
 
 				$val = stripslashes( $val );
-				$output .= '<textarea id="' . esc_attr( $value['id'] ) . '" class="of-input" name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '" rows="' . $rows . '"' . $placeholder . '>' . esc_textarea( $val ) . '</textarea>';
+				$output .= '<textarea id="' .esc_attr( $value['id'] ) . '" class="of-input" name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '" rows="' . $rows . '"' . $placeholder . '>' . esc_textarea( $val ) . '</textarea>';
 				break;
 
 			// Select Box
 			case 'select':
 				$output .= '<select class="of-input" name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '" id="' . esc_attr( $value['id'] ) . '">';
+
 
 				foreach ($value['options'] as $key => $option ) {
 					$output .= '<option'. selected( $val, $key, false ) .' value="' . esc_attr( $key ) . '">' . esc_html( $option ) . '</option>';
@@ -160,6 +172,7 @@ class Options_Framework_Interface {
 				break;
 
 			// Image Selectors
+			
 			case "images":
 				$name = $option_name .'['. $value['id'] .']';
 				foreach ( $value['options'] as $key => $option ) {
@@ -248,12 +261,14 @@ class Options_Framework_Interface {
 						$font_size .= '<option value="' . esc_attr( $size ) . '" ' . selected( $typography_stored['size'], $size, false ) . '>' . esc_html( $size ) . '</option>';
 					}
 					$font_size .= '</select>';
+					
 				}
 
 				// Font Face
 				if ( $typography_options['faces'] ) {
 					$font_face = '<select class="of-typography of-typography-face" name="' . esc_attr( $option_name . '[' . $value['id'] . '][face]' ) . '" id="' . esc_attr( $value['id'] . '_face' ) . '">';
 					$faces = $typography_options['faces'];
+					
 					foreach ( $faces as $key => $face ) {
 						$font_face .= '<option value="' . esc_attr( $key ) . '" ' . selected( $typography_stored['face'], $key, false ) . '>' . esc_html( $face ) . '</option>';
 					}
@@ -265,6 +280,7 @@ class Options_Framework_Interface {
 					$font_style = '<select class="of-typography of-typography-style" name="'.$option_name.'['.$value['id'].'][style]" id="'. $value['id'].'_style">';
 					$styles = $typography_options['styles'];
 					foreach ( $styles as $key => $style ) {
+						
 						$font_style .= '<option value="' . esc_attr( $key ) . '" ' . selected( $typography_stored['style'], $key, false ) . '>'. $style .'</option>';
 					}
 					$font_style .= '</select>';
@@ -351,7 +367,7 @@ class Options_Framework_Interface {
 				$default_editor_settings = array(
 					'textarea_name' => $textarea_name,
 					'media_buttons' => true,
-					'tinymce' => array( 'plugins' => 'wordpress' )
+					'tinymce' => array( 'plugins' => 'wordpress,wplink' )
 				);
 				$editor_settings = array();
 				if ( isset( $value['settings'] ) ) {
@@ -399,7 +415,49 @@ class Options_Framework_Interface {
 				$output .= '<h3>' . esc_html( $value['name'] ) . '</h3>' . "\n";
 				break;
 				
-				case "start_group":
+				// custom option types
+	  	     case "textblock-titled":		
+				 /* format setting outer wrapper */
+                $output .= '<div class="format-setting type-textblock titled wide-desc">';
+               /* description */
+			   if ( isset( $value['desc'] ) ) {
+                $output .= '<div class="description">' . htmlspecialchars_decode( $value['desc'] ) . '</div>';
+				}
+                $output .= '</div>';
+				break;
+				
+			 case "css":
+			 
+			 $rows = '8';
+
+				if ( isset( $value['settings']['rows'] ) ) {
+					$custom_rows = $value['settings']['rows'];
+					if ( is_numeric( $custom_rows ) ) {
+						$rows = $custom_rows;
+					}
+				}
+				
+			 $val = stripslashes( $val );
+			
+    
+		  /* format setting outer wrapper */
+			  $output .=  '<div class="format-setting type-css simple ">';
+		
+			/* format setting inner wrapper */
+			 $output .=  '<div class="format-setting-inner">';
+			  
+			  /* build textarea for CSS */
+			  $output .=  '<textarea class=" of-input" id="' . esc_attr( $value['id'] ) . '" name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '">' . esc_textarea( $val ) . '</textarea>';
+		  
+			  /* build pre to convert it into ace editor later */
+			 $output .=  '<pre class="of-css-editor ' . esc_attr( $value['class'] ) . '" data-textarea="' . esc_attr( $value['id'] ) . '" id="textarea_' . esc_attr( $value['id'] ) . '">' .esc_textarea( $val ) . '</pre>';
+			  
+			  $output .=  '</div>';
+			
+			  $output .=  '</div>';
+			 break;
+			 
+			 case "start_group":
 				$class = '';
 				$class = ! empty( $value['id'] ) ? $value['id'] : $value['name'];
 				$output .= '<div class="tab_item_group ' . $class . '">';
@@ -407,9 +465,8 @@ class Options_Framework_Interface {
 				case "end_group":
 				$output .= '</div>';
 				break;
-				case "title":
-					$output .= '<div class="group_title' . $class . '"></div>';			
-				break;
+
+			
 				
 			}
 

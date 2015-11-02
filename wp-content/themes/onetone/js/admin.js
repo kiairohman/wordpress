@@ -1,4 +1,22 @@
 jQuery(document).ready(function($){
+
+/* ------------------------------------------------------------------------ */
+/*  section accordion         	  								  	    */
+/* ------------------------------------------------------------------------ */
+								
+$('.section-accordion').click(function(){
+ var accordion_item = $(this).find('.heading span').attr('id');
+ $('.'+accordion_item).slideToggle();
+ if( $(this).hasClass('close')){
+	 $(this).removeClass('close').addClass('open');
+	 $(this).find('.heading span.fa').removeClass('fa-plus').addClass('fa-minus');
+	 }else{
+		$(this).removeClass('open').addClass('close'); 
+		$(this).find('.heading span.fa').removeClass('fa-minus').addClass('fa-plus');
+		 }
+	   
+	 })	;
+
 /* ------------------------------------------------------------------------ */
 /*  delete section             	  								  	    */
 /* ------------------------------------------------------------------------ */
@@ -19,5 +37,7 @@ jQuery(document).ready(function($){
 	   });
   });
 	
-								
+
+/////
+ 
  });

@@ -81,23 +81,28 @@ function onetone_contact(){
 	add_action('wp_ajax_onetone_contact', 'onetone_contact');
 	add_action('wp_ajax_nopriv_onetone_contact', 'onetone_contact');
 	
-	// get breadcrumbs
- function onetone_get_breadcrumb(){
-   global $post;
+// get breadcrumbs
+ function onetone_get_breadcrumb( $options ){
+   global $post,$wp_query ;
+    $postid = isset($post->ID)?$post->ID:"";
+	
    $show_breadcrumb = "";
-   
-   if(isset($post->ID) && is_numeric($post->ID)){
-    $show_breadcrumb = get_post_meta( $post->ID, '_onetone_show_breadcrumb', true );
+   if ( 'page' == get_option( 'show_on_front' ) && ( '' != get_option( 'page_for_posts' ) ) && $wp_query->get_queried_object_id() == get_option( 'page_for_posts' ) ) { 
+    $postid = $wp_query->get_queried_object_id();
+   }
+  
+   if(isset($postid) && is_numeric($postid)){
+    $show_breadcrumb = get_post_meta( $postid, '_onetone_show_breadcrumb', true );
 	}
-	if($show_breadcrumb == 1 || $show_breadcrumb==""){
+	if($show_breadcrumb == 'yes' || $show_breadcrumb==""){
 
-     new onetone_breadcrumb;
-
+               onetone_breadcrumb_trail( $options);           
 	}
+	   
 	}
 	
 	
-	/*
+/*
 *  page navigation
 *
 */
@@ -120,11 +125,11 @@ function onetone_native_pagenavi($echo,$wp_query){
     if( !empty($wp_query->query_vars['s']) )
         $pagination['add_args'] = array('s'=>get_query_var('s'));
     if($echo == "echo"){
-    echo '<div class="page_navi">'.paginate_links($pagination).'</div>'; 
+    echo '<div class="page_navi post-list-pagination"><div class="text-center">'.paginate_links($pagination).'</div></div>'; 
 	}else
 	{
 	
-	return '<div class="page_navi">'.paginate_links($pagination).'</div>';
+	return '<div class="page_navi post-list-pagination"><div class="text-center">'.paginate_links($pagination).'</div></div>';
 	}
 }
    
@@ -134,30 +139,30 @@ function onetone_native_pagenavi($echo,$wp_query){
    $GLOBALS['comment'] = $comment; ?>
    <li <?php comment_class(); ?> id="li-comment-<?php comment_ID() ;?>">
      <div id="comment-<?php comment_ID(); ?>">
-	 
-	 <div class="comment-avatar"><?php echo get_avatar($comment,'52','' ); ?></div>
-			<div class="comment-info">
-			<div class="reply-quote">
-             <?php comment_reply_link(array_merge( $args, array('depth' => $depth, 'max_depth' => $args['max_depth']))) ;?>
-			</div>
-      <div class="comment-author vcard">
-        
-			<span class="fnfn"><?php printf(__('%s </cite><span class="says">says:</span>','onetone'), get_comment_author_link()) ;?></span>
-								<span class="comment-meta commentmetadata"><a href="<?php echo htmlspecialchars( get_comment_link( $comment->comment_ID ) ) ;?>">
+     
+     <div class="comment media-comment media">
+                                                    <div class="media-avatar media-left">
+                                                       <?php echo get_avatar($comment,'52','' ); ?>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="media-inner">
+                                                            <h4 class="media-heading clearfix">
+                                                                <?php echo get_comment_author_link();?> - <a href="<?php echo htmlspecialchars( get_comment_link( $comment->comment_ID ) ) ;?>">
 <?php printf(__('%1$s at %2$s','onetone'), get_comment_date(), get_comment_time()) ;?></a>
-<?php edit_comment_link(__('(Edit)','onetone'),'  ','') ;?></span>
-				<span class="comment-meta">
-					<a href="<?php echo htmlspecialchars( get_comment_link( $comment->comment_ID ) ) ;?>">-#<?php echo $depth?></a>				</span>
-
-      </div>
-      <?php if ($comment->comment_approved == '0') : ?>
+                                                                <?php edit_comment_link(__('(Edit)','onetone'),'  ','') ;?>
+                                                                <?php comment_reply_link(array_merge( $args, array('reply_text' => '<i class="fa fa-reply"></i> '. __('Reply','onetone'), 'depth' => $depth, 'max_depth' => $args['max_depth']))) ;?>
+                                                            </h4>
+                                                            
+                                                            <?php if ($comment->comment_approved == '0') : ?>
          <em><?php _e('Your comment is awaiting moderation.','onetone') ;?></em>
          <br />
       <?php endif; ?>
-      <?php comment_text() ;?>
-</div>
-   <div class="clear"></div>
-     </div>
+                                                           <?php comment_text() ;?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                <div class="clear"></div>
+                           </div>
 <?php
         }
 		
@@ -165,7 +170,7 @@ function onetone_native_pagenavi($echo,$wp_query){
 
 	function onetone_favicon()
 	{
-	    $url =  onetone_options_array('favicon');
+	    $url =  onetone_option('favicon');
 	
 		$icon_link = "";
 		if($url)
@@ -184,8 +189,8 @@ function onetone_native_pagenavi($echo,$wp_query){
 	function onetone_get_default_slider(){
 	
 	$sanitize_title = "home";
-	$section_menu   = onetone_options_array( 'menu_title_0' );
-	$section_slug   = onetone_options_array( 'menu_slug_0' );
+	$section_menu   = onetone_option( 'menu_title_0' );
+	$section_slug   = onetone_option( 'menu_slug_0' );
 	if( $section_menu  != "" ){
     $sanitize_title = sanitize_title($section_menu );
     if( trim($section_slug) !="" ){
@@ -199,8 +204,8 @@ function onetone_native_pagenavi($echo,$wp_query){
 	 for($i=1;$i<=5;$i++){
 	$active = '';
 	
-	 $text       = onetone_options_array('onetone_slide_text_'.$i);
-	 $image      = onetone_options_array('onetone_slide_image_'.$i);
+	 $text       = onetone_option('onetone_slide_text_'.$i);
+	 $image      = onetone_option('onetone_slide_image_'.$i);
 	
      if( $image != "" ){
      $return .= '<div class="item"><img src="'.$image.'" alt=""><div class="inner">'. $text .'</div></div>';
@@ -216,30 +221,22 @@ function onetone_native_pagenavi($echo,$wp_query){
    }
 
    /**
- * onetone admin sidebar
+ * onetone admin panel menu
  */
  
-   add_action( 'optionsframework_sidebar','onetone_options_panel_sidebar' );
+   add_action( 'optionsframework_page_title_after','onetone_options_page_title' );
 
-function onetone_options_panel_sidebar() { ?>
-	<div id="optionsframework-sidebar">
-		<div class="metabox-holder">
-	    	<div class="postbox">
-	    		<h3><?php _e( 'Quick Links', 'onetone' ); ?></h3>
-      			<div class="inside"> 
-		          <ul>
+function onetone_options_page_title() { ?>
+
+		          <ul class="options-links">
                   <li><a href="<?php echo esc_url( 'http://www.mageewp.com/onetone-theme.html' ); ?>" target="_blank"><?php _e( 'Upgrade to Pro', 'onetone' ); ?></a></li>
-                  <li><a href="<?php echo esc_url( 'http://www.mageewp.com/themes/' ); ?>" target="_blank"><?php _e( 'MageeWP Themes', 'onetone' ); ?></a></li>
-                  <li><a href="<?php echo esc_url( 'http://www.mageewp.com/documents/tutorials' ); ?>" target="_blank"><?php _e( 'Tutorials', 'onetone' ); ?></a></li>
+                  <li><a href="<?php echo esc_url( 'http://www.mageewp.com/wordpress-themes' ); ?>" target="_blank"><?php _e( 'MageeWP Themes', 'onetone' ); ?></a></li>
+                  <li><a href="<?php echo esc_url( 'http://www.mageewp.com/manuals/theme-guide-onetone.html' ); ?>" target="_blank"><?php _e( 'Manual', 'onetone' ); ?></a></li>
                   <li><a href="<?php echo esc_url( 'http://www.mageewp.com/documents/faq/' ); ?>" target="_blank"><?php _e( 'FAQ', 'onetone' ); ?></a></li>
                   <li><a href="<?php echo esc_url( 'http://www.mageewp.com/knowledges/' ); ?>" target="_blank"><?php _e( 'Knowledge', 'onetone' ); ?></a></li>
                   <li><a href="<?php echo esc_url( 'http://www.mageewp.com/forums/onetone/' ); ?>" target="_blank"><?php _e( 'Support Forums', 'onetone' ); ?></a></li>
                   </ul>
-      			</div>
-	    	</div>
-	  	</div>
-	</div>
-    <div class="clear"></div>
+      			
 <?php
 }
 
@@ -277,13 +274,13 @@ if ( ! function_exists( '_wp_render_title_tag' ) ) {
 }
 
  
-  
  /**
  * back to top
  */
  
 function onetone_back_to_top(){
-	$back_to_top_btn = onetone_options_array("back_to_top_btn");
+	
+	$back_to_top_btn = onetone_option("back_to_top_btn");
 	if( $back_to_top_btn != "hide" ){
     echo '<a href="javascript:;">
         	<div id="back-to-top">
@@ -295,3 +292,245 @@ function onetone_back_to_top(){
         }
         
   add_action( 'wp_footer', 'onetone_back_to_top' );
+  
+
+
+// get social icon
+
+function onetone_get_social( $position, $class = 'top-bar-sns',$placement='top',$target='_blank'){
+	global $social_icons;
+   $return = '';
+   $rel    = '';
+   
+   $social_links_nofollow  = onetone_option( 'social_links_nofollow','no' ); 
+   $social_new_window = onetone_option( 'social_new_window','yes' );  
+   if( $social_new_window == 'no')
+   $target = '_self';
+   
+   if( $social_links_nofollow == 'yes' )
+   $rel    = 'nofollow';
+   
+   if(is_array($social_icons) && !empty($social_icons)):
+   $return .= '<ul class="'.esc_attr($class).'">';
+   $i = 1;
+   foreach($social_icons as $sns_list_item){
+	 
+		 $icon = onetone_option( $position.'_social_icon_'.$i,'' );  
+		 $title = onetone_option( $position.'_social_title_'.$i,'' );
+		 $link = onetone_option( $position.'_social_link_'.$i,'' );  
+	if(  $icon !="" ){
+	 $return .= '<li><a target="'.esc_attr($target).'" rel="'.$rel.'" href="'.esc_url($link).'" data-placement="'.esc_attr($placement).'" data-toggle="tooltip" title="'.esc_attr( $title).'"><i class="fa fa-'.esc_attr( $icon).'"></i></a></li>';
+	} 
+	$i++;
+	} 
+	$return .= '</ul>';
+	endif;
+	return $return ;
+	}
+	
+	
+ // get top bar content
+
+ function onetone_get_topbar_content( $type =''){
+
+	 switch( $type ){
+		 case "info":
+		 echo '<div class="top-bar-info">';
+		 echo onetone_option('top_bar_info_content');
+		 echo '</div>';
+		 break;
+		 case "sns":
+		 $tooltip_position = onetone_option('top_social_tooltip_position','bottom'); 
+		 echo onetone_get_social('header','top-bar-sns',$tooltip_position);
+		 break;
+		 case "menu":
+		 echo '<nav class="top-bar-menu">';
+		 wp_nav_menu(array('theme_location'=>'top_bar_menu','depth'=>1,'fallback_cb' =>false,'container'=>'','container_class'=>'','menu_id'=>'','menu_class'=>'','link_before' => '<span>', 'link_after' => '</span>','items_wrap'=> '<ul id="%1$s" class="%2$s">%3$s</ul>'));
+		 echo '</nav>';
+		 break;
+		 case "none":
+		
+		 break;
+		 }
+	 }
+	 
+/**
+ * Convert Hex Code to RGB
+ * @param  string $hex Color Hex Code
+ * @return array       RGB values
+ */
+ 
+function onetone_hex2rgb( $hex ) {
+		if ( strpos( $hex,'rgb' ) !== FALSE ) {
+
+			$rgb_part = strstr( $hex, '(' );
+			$rgb_part = trim($rgb_part, '(' );
+			$rgb_part = rtrim($rgb_part, ')' );
+			$rgb_part = explode( ',', $rgb_part );
+
+			$rgb = array($rgb_part[0], $rgb_part[1], $rgb_part[2], $rgb_part[3]);
+
+		} elseif( $hex == 'transparent' ) {
+			$rgb = array( '255', '255', '255', '0' );
+		} else {
+
+			$hex = str_replace( '#', '', $hex );
+
+			if( strlen( $hex ) == 3 ) {
+				$r = hexdec( substr( $hex, 0, 1 ) . substr( $hex, 0, 1 ) );
+				$g = hexdec( substr( $hex, 1, 1 ) . substr( $hex, 1, 1 ) );
+				$b = hexdec( substr( $hex, 2, 1 ) . substr( $hex, 2, 1 ) );
+			} else {
+				$r = hexdec( substr( $hex, 0, 2 ) );
+				$g = hexdec( substr( $hex, 2, 2 ) );
+				$b = hexdec( substr( $hex, 4, 2 ) );
+			}
+			$rgb = array( $r, $g, $b );
+		}
+
+		return $rgb; // returns an array with the rgb values
+	}
+
+/**
+ * load less
+ */
+ 
+
+function onetone_enqueue_less_styles($tag, $handle) {
+		global $wp_styles;
+		$match_pattern = '/\.less$/U';
+		if ( preg_match( $match_pattern, $wp_styles->registered[$handle]->src ) ) {
+			$handle = $wp_styles->registered[$handle]->handle;
+			$media = $wp_styles->registered[$handle]->args;
+			$href = $wp_styles->registered[$handle]->src . '?ver=' . $wp_styles->registered[$handle]->ver;
+			$rel = isset($wp_styles->registered[$handle]->extra['alt']) && $wp_styles->registered[$handle]->extra['alt'] ? 'alternate stylesheet' : 'stylesheet';
+			$title = isset($wp_styles->registered[$handle]->extra['title']) ? "title='" . esc_attr( $wp_styles->registered[$handle]->extra['title'] ) . "'" : '';
+	
+			$tag = "<link rel='stylesheet' id='$handle' $title href='$href' type='text/less' media='$media' />\n";
+		}
+		return $tag;
+	}
+add_filter( 'style_loader_tag', 'onetone_enqueue_less_styles', 5, 2);
+
+
+	 
+	// get related posts
+	
+ function onetone_get_related_posts($post_id, $number_posts = -1,$post_type = 'post') {
+	$query = new WP_Query();
+
+    $args = '';
+
+	if($number_posts == 0) {
+		return $query;
+	}
+
+	$args = wp_parse_args($args, array(
+		'posts_per_page' => $number_posts,
+		'post__not_in' => array($post_id),
+		'ignore_sticky_posts' => 0,
+        'meta_key' => '_thumbnail_id',
+        'category__in' => wp_get_post_categories($post_id),
+		'post_type' =>$post_type 
+	));
+
+	$query = new WP_Query($args);
+    wp_reset_postdata(); 
+  	return $query;
+}
+
+
+
+if ( ! function_exists( 'onetone_paging_nav' ) ) :
+/**
+ * Display navigation to next/previous set of posts when applicable.
+ */
+function onetone_paging_nav($echo='echo',$wp_query='') {
+    if(!$wp_query){global $wp_query;}
+    global $wp_rewrite;      
+    $wp_query->query_vars['paged'] > 1 ? $current = $wp_query->query_vars['paged'] : $current = 1;
+
+	$pagination = array(
+	'base' => @add_query_arg('paged','%#%'),
+	'format'             => '?page=%#%',
+	'total'              => $wp_query->max_num_pages,
+	'current'            => $current,
+	'show_all'           => false,
+	'end_size'           => 1,
+	'mid_size'           => 2,
+	'prev_next'          => true,
+	'prev_text'          => __(' Prev', 'onetone'),
+	'next_text'          => __('Next ', 'onetone'),
+	'type'               => 'list',
+	'add_args'           => false,
+	'add_fragment'       => '',
+	'before_page_number' => '',
+	'after_page_number'  => ''
+);
+ 
+    if( $wp_rewrite->using_permalinks() )
+        $pagination['base'] = user_trailingslashit( trailingslashit( remove_query_arg('s',get_pagenum_link(1) ) ) . 'page/%#%/', 'paged');
+ 
+    if( !empty($wp_query->query_vars['s']) )
+        $pagination['add_args'] = array('s'=>get_query_var('s'));
+		
+	if( $wp_query->max_num_pages > 1 ){
+    if($echo == "echo"){
+    echo '<nav class="post-pagination post-list-pagination" role="navigation">
+                                    <div class="post-pagination-decoration"></div>
+                                    '.paginate_links($pagination).'</nav>'; 
+	}else
+	{
+	
+	return '<nav class="post-pagination post-list-pagination" role="navigation">
+                                    <div class="post-pagination-decoration"></div>'.paginate_links($pagination).'</nav>';
+	}
+	
+	}
+}
+endif;
+
+/**
+ * Display navigation to next/previous post when applicable.
+ */
+ 
+if ( ! function_exists( 'onetone_post_nav' ) ) :
+
+function onetone_post_nav() {
+	// Don't print empty markup if there's nowhere to navigate.
+	$previous = ( is_attachment() ) ? get_post( get_post()->post_parent ) : get_adjacent_post( false, '', true );
+	$next     = get_adjacent_post( false, '', false );
+
+	if ( ! $next && ! $previous ) {
+		return;
+	}
+	?>
+    <nav class="post-pagination" role="navigation">
+                                        <ul class="clearfix">
+                                        <?php
+											previous_post_link( '<li class="pull-left">%link</li>', '%title' );
+											next_post_link(     '<li class="pull-right">%link</li>', '%title' );
+										?>
+                                        </ul>
+                                    </nav>  
+                                    
+	<!-- .navigation -->
+	<?php
+}
+endif;
+
+// get post content css class
+ function onetone_get_content_class( $sidebar = '' ){
+	 
+	 if( $sidebar == 'left' )
+	 return 'left-aside';
+	 if( $sidebar == 'right' )
+	 return 'right-aside';
+	 if( $sidebar == 'both' )
+	 return 'both-aside';
+	  if( $sidebar == 'none' )
+	 return 'no-aside';
+	 
+	 return 'no-aside';
+	 
+	 }

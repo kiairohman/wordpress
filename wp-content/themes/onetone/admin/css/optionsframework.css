@@ -1,7 +1,7 @@
 /* Options Framework Admin Styles */
 
 #optionsframework {
-    max-width:700px;
+    max-width:840px;
     background:#fff;
 }
 #optionsframework h3 {
@@ -221,103 +221,4 @@
 }
 #optionsframework .section:after {
 	clear: both;
-}
-
-
-/* Additional*/
-#optionsframework .section .option .controls input[type=text]{ width:350px; max-width:100%;}
-#optionsframework .section.column_1_3 .option .controls input[type=text]{ max-width:100%;}
-
-#optionsframework .section.column_1_2.option .controls textarea,
-#optionsframework .section.column_2_3 .option .controls textarea{
- height:80px;
- }
-
-#optionsframework .section-subsection{ margin:10px; border-bottom:dashed 1px #A0A0A4; clear:both;}
-#optionsframework .section-subsection h4.heading{ font-weight:bold;font-size:1.3em; margin-bottom:0.3em;}
-#optionsframework .column_1_2{ width:45%; float:left;}
-#optionsframework .column_1_3{ width:30%; float:left;}
-#optionsframework .column_2_3{ width:60%; float:left;}
-#optionsframework .section.column_1_2 .controls,
-#optionsframework .section.column_2_3 .controls,
-#optionsframework .section.column_1_3 .controls {
-	float: left;
-	min-width:inherit;
-	width: 98%;
-	padding-right:2%;
-}
-#optionsframework last{
-padding-right:0 !important;
-}
-#optionsframework #home_purchase{ width:100%; height:120px;}
-@media only screen and (max-width:720px) {
-#optionsframework .column_1_2{ width:100%; float:none;}
-#optionsframework .column_1_3{ width:100%; float:none;}
-#optionsframework .column_2_3{ width:100%; float:none;}
-}
-
-/* Additional*/
-#optionsframework .section .option .controls input[type=text]{ width:350px;}
-#optionsframework .section-start_group.group_close > div{ display:none;}
-#optionsframework .section-start_group .wp-picker-container{ width:100%;}
-#optionsframework #logo-image img {
-    background: none repeat scroll 0 0 #DDDDDD;
-    border: 1px solid #CCCCCC;
-    border-radius: 2px;
-    display: block;
-    float: left;
-    height: auto;
-    max-width: 100%;
-    padding: 4px;
-}
-/*#optionsframework .section-start_group{ padding:0; width:96%; margin:0 auto;border:1px solid #666;}*/
-#optionsframework .section-start_group > h4.heading{ font-size:14px; color:#FFFFFF; font-weight:bold; background:url(../images/arrow.png) right 10px center no-repeat #999; background-color:#999;overflow: hidden; line-height: 30px; margin: 0;overflow: hidden;padding-left: 10px; cursor:pointer;}
-#optionsframework .section-start_group .section .controls{ width:90%;}
-#optionsframework-wrap #optionsframework-sidebar {
-    float: left;
-    margin-left: 20px;
-    width: 250px;
-}
-#optionsframework{
-	float:left;
-	width:700px;
-	}
-#optionsframework-wrap {
-	background: #fff;
-	padding: 10px 20px;
-	border-radius: 10px;
-	border: 3px solid #ccc;
-}
-
-#optionsframework-sidebar postbox .inside li:nth-child(1) a {
-background-color: #98B6CB;
-}
-#optionsframework-sidebar .postbox .inside a {
-text-decoration: none;
-color: #fff;
-background-color: #000;
-padding: 15px 10px;
-display: block;
-border-radius: 5px;
-font-size: 16px;
-margin-bottom: 10px;
-}
-#optionsframework-sidebar .postbox .inside li:nth-child(1) a {
-	background-color: #98B6CB;
-}
-
-#optionsframework-sidebar .postbox .inside li:nth-child(2) a {
-	background-color: #EF5D36;
-}
-
-#optionsframework-sidebar .postbox .inside li:nth-child(3) a {
-	background-color: #fed136;
-}
-
-#optionsframework-sidebar .postbox .inside li:nth-child(4) a {
-	background-color: #F797AE;
-}
-
-#optionsframework-sidebar .postbox .inside li:nth-child(5) a {
-	background-color: #906E9B;
 }

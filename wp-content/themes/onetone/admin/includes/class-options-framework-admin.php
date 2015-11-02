@@ -55,7 +55,8 @@ class Options_Framework_Admin {
     function settings_init() {
 
 		// Get the option name
-	    $name = Options_Framework::get_option_name();
+		$options_framework = new Options_Framework;
+	    $name = $options_framework->get_option_name();
 
 		// Registers the settings fields and callback
 		register_setting( 'optionsframework', $name, array ( $this, 'validate_options' ) );
@@ -87,8 +88,8 @@ class Options_Framework_Admin {
             'mode' => 'submenu',
 
             // Submenu default settings
-            'page_title' => __( 'Theme Options', 'textdomain' ),
-			'menu_title' => __( 'Theme Options', 'textdomain' ),
+            'page_title' => __( 'Theme Options', 'onetone' ),
+			'menu_title' => __( 'Theme Options', 'onetone' ),
 			'capability' => 'edit_theme_options',
 			'menu_slug' => 'options-framework',
             'parent_slug' => 'themes.php',
@@ -152,7 +153,12 @@ class Options_Framework_Admin {
 	        return;
 
 		// Enqueue custom option panel JS
-		wp_enqueue_script( 'options-custom', OPTIONS_FRAMEWORK_DIRECTORY . 'js/options-custom.js', array( 'jquery','wp-color-picker' ), Options_Framework::VERSION );
+		wp_enqueue_script(
+			'options-custom',
+			OPTIONS_FRAMEWORK_DIRECTORY . 'js/options-custom.js',
+			array( 'jquery','wp-color-picker' ),
+			Options_Framework::VERSION
+		);
 
 		// Inline scripts from options-interface.php
 		add_action( 'admin_head', array( $this, 'of_admin_head' ) );
@@ -180,7 +186,7 @@ class Options_Framework_Admin {
 		<div id="optionsframework-wrap" class="wrap">
 
 		<?php $menu = $this->menu_settings(); ?>
-		<h2><?php echo esc_html( $menu['page_title'] ); ?></h2>
+		<h2><?php echo esc_html( $menu['page_title'] ); ?> <?php do_action( 'optionsframework_page_title_after' ); ?></h2>
 
 	    <h2 class="nav-tab-wrapper">
 	        <?php echo Options_Framework_Interface::optionsframework_tabs(); ?>
@@ -194,13 +200,12 @@ class Options_Framework_Admin {
 				<?php settings_fields( 'optionsframework' ); ?>
 				<?php Options_Framework_Interface::optionsframework_fields(); /* Settings */ ?>
 				<div id="optionsframework-submit">
-					<input type="submit" class="button-primary" name="update" value="<?php esc_attr_e( 'Save Options', 'textdomain' ); ?>" />
-					<input type="submit" class="reset-button button-secondary" name="reset" value="<?php esc_attr_e( 'Restore Defaults', 'textdomain' ); ?>" onclick="return confirm( '<?php print esc_js( __( 'Click OK to reset. Any theme settings will be lost!', 'textdomain' ) ); ?>' );" />
+					<input type="submit" class="button-primary" name="update" value="<?php esc_attr_e( 'Save Options', 'onetone' ); ?>" />
+					<input type="submit" class="reset-button button-secondary" name="reset" value="<?php esc_attr_e( 'Restore Defaults', 'onetone' ); ?>" onclick="return confirm( '<?php print esc_js( __( 'Click OK to reset. Any theme settings will be lost!', 'onetone' ) ); ?>' );" />
 					<div class="clear"></div>
 				</div>
 				</form>
 			</div> <!-- / #container -->
-            <?php do_action( 'optionsframework_sidebar' ); ?>
 		</div>
 		<?php do_action( 'optionsframework_after' ); ?>
 		</div> <!-- / .wrap -->
@@ -227,7 +232,7 @@ class Options_Framework_Admin {
 		 */
 
 		if ( isset( $_POST['reset'] ) ) {
-			add_settings_error( 'options-framework', 'restore_defaults', __( 'Default options restored.', 'textdomain' ), 'updated fade' );
+			add_settings_error( 'options-framework', 'restore_defaults', __( 'Default options restored.', 'onetone' ), 'updated fade' );
 			return $this->get_default_values();
 		}
 
@@ -240,6 +245,7 @@ class Options_Framework_Admin {
 
 		$clean = array();
 		$options = & Options_Framework::_optionsframework_options();
+		
 		foreach ( $options as $option ) {
 
 			if ( ! isset( $option['id'] ) ) {
@@ -281,7 +287,10 @@ class Options_Framework_Admin {
 	 */
 
 	function save_options_notice() {
-		add_settings_error( 'options-framework', 'save_options', __( 'Options saved.', 'textdomain' ), 'updated fade' );
+	 
+		add_settings_error( 'options-framework', 'save_options', __( 'Options saved.', 'onetone' ), 'updated fade' );
+		
+		
 	}
 
 	/**
